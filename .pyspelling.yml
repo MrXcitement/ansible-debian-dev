@@ -1,0 +1,14 @@
+spellchecker: hunspell
+
+matrix:
+- name: markdown
+  default_encoding: utf-8
+  dictionary:
+    wordlists:
+    - .vscode/spellright.dict
+    output: build/dictionary/markdown.dic
+    encoding: utf-8
+  pipeline:
+  - pyspelling.filters.text
+  sources:
+  - '**/*.md'
