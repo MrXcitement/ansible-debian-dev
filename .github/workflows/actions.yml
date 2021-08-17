@@ -4,6 +4,8 @@ jobs:
   spellcheck:
     runs-on: ubuntu-latest
     steps:
+      - name: Show repository variable
+        run: echo ${{ github.repository }}
       - uses: action/checkout@v2
       - name: Install python3 and pip3
         run: sudo apt install -y python3 python3-pip
