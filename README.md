@@ -1,2 +1,2 @@
-# ansible-debian-dev
-Use Ansible to configure a Debian developer system
+# ansible-devbox
+Use Ansible to configure a developer system
