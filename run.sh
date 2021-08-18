@@ -17,11 +17,14 @@ set -o pipefail
 set -o errexit
 
 function help {
-    printf "Usage: ./run.sh task [argument ...]\n"
+    printf "usage: ./run.sh <task> [argument ...]\n"
     printf "\n"
-    printf "\tRun a project specific task with optional arguments."
+    printf "These are the valid tasks that can be run.\n"
     printf "\n"
-    printf "\ttask: spellcheck, help\n"
+    printf "\thelp\t\t\tShow this help\n"
+    printf "\tspellcheck\t\tRun a spellcheck of files in the project\n"
+    printf "\tvagrant-fix-vmware\tFix macOS vagrant vmware plugin\n"
+    printf "\n"
 }
 
 function spellcheck {
@@ -30,6 +33,11 @@ function spellcheck {
     pyspelling "$@"
 }
 
+# See: https://github.com/hashicorp/vagrant/issues/11839
+function vagrant-fix-vmware {
+    sudo launchctl stop com.vagrant.vagrant-vmware-utility
+    sudo launchctl start com.vagrant.vagrant-vmware-utility
+}
 
 # If no task provided, run the help task, exit with no error
 if [[ $# == 0 ]]; then
@@ -39,7 +47,7 @@ fi
 
 # If invalid task provided, show error and then run the help task, exit with error
 if ! declare -F "$1" > /dev/null; then
-    printf "Error: %s is an invalid task!\n\n" "$1"
+    printf "Error! %s is an invalid task!\n\n" "$1"
     help
     exit 1
 fi
