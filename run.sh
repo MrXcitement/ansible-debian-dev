@@ -27,6 +27,14 @@ function help {
     printf "\n"
 }
 
+function playbook {
+	ansible-playbook -K ./playbook.yml
+}
+
+function prerequisites {
+	sudo apt install -y ansible
+}
+
 function spellcheck {
     # Use the pyspelling command to check for spelling issues in this project.
     # See: https://facelessuser.github.io/pyspelling/
