@@ -28,7 +28,7 @@ function help {
 }
 
 function playbook {
-	ansible-playbook ./playbook.yml
+	ansible-playbook -K ./playbook.yml
 }
 
 function prerequisites {
