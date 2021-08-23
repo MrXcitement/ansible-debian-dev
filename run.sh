@@ -23,6 +23,7 @@ function help {
     printf "\n"
     printf "\thelp\t\t\tShow this help\n"
     printf "\tspellcheck\t\tRun a spellcheck of files in the project\n"
+    printf "\tvagrant-dev\t\tinstall the prerequisites and run the playbook in the vagrant box\n"
     printf "\tvagrant-fix-vmware\tFix macOS vagrant vmware plugin\n"
     printf "\n"
 }
@@ -39,6 +40,10 @@ function spellcheck {
     # Use the pyspelling command to check for spelling issues in this project.
     # See: https://facelessuser.github.io/pyspelling/
     pyspelling "$@"
+}
+
+function vagrant-dev {
+    vagrant ssh -c "cd /vagrant && ./run.sh prerequisites && ./run.sh playbook && exit"
 }
 
 # See: https://github.com/hashicorp/vagrant/issues/11839
