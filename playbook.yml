@@ -5,6 +5,9 @@
     current_user: "{{ ansible_user_id }}"
     new_shell: "{{ '/bin/zsh' }}"
     packages:
+      - exa
+      - fasd
+      - fzf
       - git
       - tmux
       - vim
