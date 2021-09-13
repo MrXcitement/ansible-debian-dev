@@ -1,3 +1,4 @@
+[![CI](https://github.com/MrXcitement/ansible-devbox/actions/workflows/main.yml/badge.svg)](https://github.com/MrXcitement/ansible-devbox/actions/workflows/main.yml)
 # Ansible devbox
 Use Ansible to configure a developer system
 
