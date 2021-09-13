@@ -4,7 +4,6 @@
     current_user: "{{ ansible_user_id }}"
     new_shell: "{{ '/bin/zsh' }}"
     packages:
-      - curl
       - exa
       - fasd
       - fzf
@@ -25,31 +24,37 @@
       - { repo: 'https://github.com/mrxcitement/dot-zsh.git',
           dest: '~/github/mrxcitement/dot-zsh',
           version: master }
-
   tasks:
-    - name: "Install software"
-      become: true
-      package:
-        name: "{{ packages }}"
-        state: present
+    - name: Gather package facts
+      package_facts:
+        manager: auto
 
-    - name: "Clone dot-file repositories"
-      git:
-        repo: "{{ item.repo }}"
-        dest: "{{ item.dest }}"
-        version: "{{ item.version }}"
+    - name: Verify Packages
+      assert:
+        that: "'{{ item }}' in ansible_facts.packages"
+      with_items: "{{ packages }}"
+
+    - name: Get the status of the file
+      stat:
+        path: '{{ item.dest }}'
+      register: status
       with_items: "{{ git_repos }}"
 
-    - name: "Install dot-file repositories"
-      register: install
-      command:
-        chdir: "{{ item.dest }}"
-        cmd: "./install"
-      with_items: "{{ git_repos }}"
-      changed_when: "'Link' in install.stdout"
+    - name: Assert the status of the file is correct
+      assert:
+        that: '{{ item.stat.exists }}'
+      with_items: '{{ status.results }}'
 
-    - name: "Change current user's shell to {{ new_shell }}"
-      become: true
-      user:
-        name: "{{ current_user }}"
-        shell: "{{ new_shell }}"
+    - name: Get the current users passwd entry
+      getent:
+        database: passwd
+        key: "{{ current_user }}"
+
+    - debug:
+        var: "getent_passwd.{{ current_user }}"
+        verbosity: 2
+
+    - name: Assert the current user has the correct shell
+      assert:
+        that: '"{{ new_shell }}" in getent_passwd.{{ current_user }}'
+
