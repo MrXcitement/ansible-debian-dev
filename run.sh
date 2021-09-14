@@ -22,14 +22,14 @@ declare -a TASK_HELP
 
 # Change the current directory to the project root.
 PROJECT_ROOT=${0%/*}
-if [[ $0 != $PROJECT_ROOT && $PROJECT_ROOT != "" ]]; then
+if [[ $0 != "$PROJECT_ROOT" && $PROJECT_ROOT != "" ]]; then
     pushd "$PROJECT_ROOT" > /dev/null
 fi
 readonly PROJECT_ROOT=$( pwd )
-readonly SCRIPT_NAME=${0##*/}
+# readonly SCRIPT_NAME=${0##*/}
 
 # Store the absolute path to this script (useful for recursion).
-readonly SCRIPT="$PROJECT_ROOT/$SCRIPT_NAME"
+# readonly SCRIPT="$PROJECT_ROOT/$SCRIPT_NAME"
 
 # Display help for the run.sh script
 TASK_HELP+=("help:Display the help")
@@ -58,7 +58,7 @@ if [[ $# -eq 0 ]]; then
 fi
 
 # Check for undefined task
-if ! [[ "${TASK_HELP[*]}" =~ "$1:" ]]; then
+if ! [[ "${TASK_HELP[*]}" =~ $1: ]]; then
     # Undefined task specified
     printf "Error! '%s' is an undefined task!\n" "$1"
     popd > /dev/null
