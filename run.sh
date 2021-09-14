@@ -16,54 +16,59 @@ set -o nounset
 set -o pipefail
 set -o errexit
 
+# An array of help strings in the format of task:help
+# An entry in this array must exist for the function to be runable.
+declare -a TASK_HELP
+
+# Change the current directory to the project root.
+PROJECT_ROOT=${0%/*}
+if [[ $0 != "$PROJECT_ROOT" && $PROJECT_ROOT != "" ]]; then
+    pushd "$PROJECT_ROOT" > /dev/null
+fi
+readonly PROJECT_ROOT=$( pwd )
+# readonly SCRIPT_NAME=${0##*/}
+
+# Store the absolute path to this script (useful for recursion).
+# readonly SCRIPT="$PROJECT_ROOT/$SCRIPT_NAME"
+
+# Display help for the run.sh script
+TASK_HELP+=("help:Display the help")
 function help {
     printf "usage: ./run.sh <task> [argument ...]\n"
     printf "\n"
     printf "These are the valid tasks that can be run.\n"
     printf "\n"
-    printf "\thelp\t\t\tShow this help\n"
-    printf "\tspellcheck\t\tRun a spellcheck of files in the project\n"
-    printf "\tvagrant-dev\t\tinstall the prerequisites and run the playbook in the vagrant box\n"
-    printf "\tvagrant-fix-vmware\tFix macOS vagrant vmware plugin\n"
+    for item in "${TASK_HELP[@]}"; do
+        IFS=':' read -r -a fields <<< "$item"
+        printf "%-24s%s\n" "${fields[0]}" "${fields[1]}"
+    done
     printf "\n"
 }
 
-function playbook {
-	ansible-playbook -K ./playbook.yml
-}
-
-function prerequisites {
-	sudo apt install -y ansible
-}
-
-function spellcheck {
-    # Use the pyspelling command to check for spelling issues in this project.
-    # See: https://facelessuser.github.io/pyspelling/
-    pyspelling "$@"
-}
-
-function vagrant-dev {
-    vagrant ssh -c "cd /vagrant && ./run.sh prerequisites && ./run.sh playbook && exit"
-}
-
-# See: https://github.com/hashicorp/vagrant/issues/11839
-function vagrant-fix-vmware {
-    sudo launchctl stop com.vagrant.vagrant-vmware-utility
-    sudo launchctl start com.vagrant.vagrant-vmware-utility
-}
-
-# If no task provided, run the help task, exit with no error
-if [[ $# == 0 ]]; then
-    help
-    exit 0
+# Source the Runfile to get the run tasks
+if [[ -f ./Runfile ]]; then
+    source ./Runfile
 fi
 
-# If invalid task provided, show error and then run the help task, exit with error
-if ! declare -F "$1" > /dev/null; then
-    printf "Error! %s is an invalid task!\n\n" "$1"
+# Check for no arguments
+if [[ $# -eq 0 ]]; then
     help
+    popd > /dev/null
+    exit 1
+fi
+
+# Check for undefined task
+if ! [[ "${TASK_HELP[*]}" =~ $1: ]]; then
+    # Undefined task specified
+    printf "Error! '%s' is an undefined task!\n" "$1"
+    popd > /dev/null
     exit 1
 fi
 
 # Dispatch the task
-"$@"
+TIMEFORMAT="Task completed in %3lR"
+time "$@"
+
+# Cleanup and exit
+popd > /dev/null
+exit 0

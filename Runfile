@@ -1,0 +1,27 @@
+# This projects 'run.sh' tasks.
+
+TASK_HELP+=("playbook:Run the ansible playbook")
+function playbook {
+	ansible-playbook -K -i inventory playbook.yml
+}
+
+TASK_HELP+=("spellcheck:Spellcheck files in this project")
+function spellcheck {
+    # Use the pyspelling command to check for spelling issues in this project.
+    # See: https://facelessuser.github.io/pyspelling/
+    pyspelling "$@"
+}
+
+TASK_HELP+=("vagrant-dev:Bring up the vagrant dev environment")
+function vagrant-dev {
+    vagrant ssh -c "cd /vagrant && ./run.sh prerequisites && ./run.sh playbook && exit"
+}
+
+if [[ $(uname -s) == Darwin ]]; then
+    # See: https://github.com/hashicorp/vagrant/issues/11839
+    TASK_HELP+=("vagrant-fix-vmware:Fix macos vagrant vmware issue #11839")
+    function vagrant-fix-vmware {
+        sudo launchctl stop com.vagrant.vagrant-vmware-utility
+        sudo launchctl start com.vagrant.vagrant-vmware-utility
+    }
+fi
