@@ -53,3 +53,9 @@
       user:
         name: "{{ current_user }}"
         shell: "{{ new_shell }}"
+      
+    - name: Include pyenv role
+      include_role:
+        name: markosamuli.pyenv
+      vars:
+        pyenv_version: "v2.1.0"
