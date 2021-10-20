@@ -12,44 +12,47 @@
       - tmux
       - vim
       - zsh
-    git_repos:
-      - { repo: 'https://github.com/MrXcitement/dot-git.git',
-          dest: '~/github/mrxcitement/dot-git',
-          version: main }
-      - { repo: 'https://github.com/mrxcitement/dot-tmux.git',
-          dest: '~/github/mrxcitement/dot-tmux',
-          version: master }
-      - { repo: 'https://github.com/mrxcitement/dot-vim.git',
-          dest: '~/github/mrxcitement/dot-vim',
-          version: master }
-      - { repo: 'https://github.com/mrxcitement/dot-zsh.git',
-          dest: '~/github/mrxcitement/dot-zsh',
-          version: master }
+
+    dotfiles:
+      - repo: 'https://github.com/MrXcitement/dot-git.git'
+        dest: 'github/mrxcitement/dot-git'
+        version: main
+      - repo: 'https://github.com/mrxcitement/dot-tmux.git'
+        dest: 'github/mrxcitement/dot-tmux'
+        version: master
+      - repo: 'https://github.com/mrxcitement/dot-vim.git'
+        dest: 'github/mrxcitement/dot-vim'
+        version: master
+      - repo: 'https://github.com/mrxcitement/dot-zsh.git'
+        dest: 'github/mrxcitement/dot-zsh'
+        version: master
+
+  pre_tasks:
+    - name: Update apt cache.
+      apt: update_cache=yes cache_valid_time=600
+      become: yes
+      when: ansible_os_family == 'Debian'
 
   tasks:
     - name: "Install software"
-      become: true
       package:
         name: "{{ packages }}"
         state: present
+      become: yes
 
-    - name: "Clone dot-file repositories"
-      git:
-        repo: "{{ item.repo }}"
-        dest: "{{ item.dest }}"
-        version: "{{ item.version }}"
-      with_items: "{{ git_repos }}"
-
-    - name: "Install dot-file repositories"
-      register: install
-      command:
-        chdir: "{{ item.dest }}"
-        cmd: "./install"
-      with_items: "{{ git_repos }}"
-      changed_when: "'Link' in install.stdout"
+    - name: "Install dotfiles"
+      include_role:
+        name: mrxcitement.dotfiles
+      vars:
+        dotfiles_repo: '{{ item.repo }}'
+        dotfiles_dest: '{{ item.dest }}'
+        dotfiles_version: '{{ item.version }}'
+        dotfiles_username: '{{ item.username | default("") }}'
+        dotfiles_password: '{{ item.password | default("") }}'
+      loop: '{{ dotfiles }}'
 
     - name: "Change current user's shell to {{ new_shell }}"
-      become: true
       user:
         name: "{{ current_user }}"
         shell: "{{ new_shell }}"
+      become: yes
