@@ -1,5 +1,37 @@
 # This projects 'run.sh' tasks.
 
+TASK_HELP+=("pip-install-pipx:Pip install pipx")
+function pip-install-pipx()
+{
+	pip3 install --user pipx
+}
+
+TASK_HELP+=("pipx-install-yamllint:Pipx install yamllint")
+function pipx-install-yamllint()
+{
+	pipx install --include-deps yamllint
+}
+
+TASK_HELP+=("pipx-install-ansible:Pipx install ansible")
+function pipx-install-ansible()
+{
+	pipx install --include-deps ansible
+}
+
+TASK_HELP+=("pipx-inject-ansible:Pipx inject ansible")
+function pipx-inject-ansible()
+{
+	pipx inject --include-apps ansible ansible-lint
+	pipx inject --include-apps ansible molecule
+	pipx inject ansible docker
+	pipx inject ansible openshift
+	pipx inject ansible python-vagrant
+	pipx inject ansible netaddr
+	pipx inject ansible molecule-docker
+	pipx inject ansible molecule-podman
+	pipx inject ansible molecule-vagrant
+}
+
 TASK_HELP+=("playbook:Run the ansible playbook")
 function playbook {
 	ansible-playbook -K -i inventory playbook.yml
