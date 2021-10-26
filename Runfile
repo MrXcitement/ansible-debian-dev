@@ -1,5 +1,18 @@
 # This projects 'run.sh' tasks.
 
+TASK_HELP+=("deploy:Deploy the playbook")
+function deploy()
+{
+    install-roles
+    playbook
+}
+
+TASK_HELP+=("install-roles:Install ansible galaxy roles")
+function install-roles
+{
+    ansible-galaxy install -r requirements.yml
+}
+
 TASK_HELP+=("pip-install-pipx:Pip install pipx")
 function pip-install-pipx()
 {
